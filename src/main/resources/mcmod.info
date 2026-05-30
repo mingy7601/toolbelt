@@ -1,0 +1,15 @@
+[
+	{
+		"mcversion": "1.12.2",
+		"modid": "toolbelt",
+		"name": "Toolbelt",
+		"description": "A craftable toolbelt bauble that lets you hot-swap your hotbar with a secondary set of items.",
+		"version": "${VERSION}",
+		"authorList": [],
+		"credits": "",
+		"logoFile": "",
+		"updateUrl": "",
+		"requiredMods": [ "baubles" ],
+		"dependencies": [ "baubles" ]
+	}
+]
