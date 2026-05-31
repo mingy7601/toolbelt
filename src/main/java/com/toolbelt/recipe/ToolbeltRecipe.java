@@ -1,92 +1,35 @@
 package com.toolbelt.recipe;
 
-import baubles.api.BaubleType;
 import com.toolbelt.Toolbelt;
-import com.toolbelt.item.ToolbeltItem;
-import net.minecraft.init.Items;
-import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.NonNullList;
-import net.minecraft.world.World;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * Registers the crafting recipe for the Toolbelt item.
- * Pattern: 8 leather in a 3×3 grid with an empty center slot (suggests a belt with a buckle hole).
+ * Crafting recipe registration for the Toolbelt item.
+ *
+ * <p>The recipe is defined as a JSON file at
+ * {@code assets/toolbelt/recipes/toolbelt.json} and loaded automatically by
+ * Forge's built-in JSON recipe loader. No Java-side registration is required.</p>
+ *
+ * <h3>Recipe layout</h3>
+ * <pre>
+ * [Leather][Leather][Leather]
+ * [Leather][       ][Leather]
+ * [Leather][Leather][Leather]
+ * </pre>
+ *
+ * <p>The empty center slot represents the belt buckle hole — a classic
+ * Minecraft crafting pattern (like TNT, trapdoors).</p>
  */
 public class ToolbeltRecipe {
 
-    /**
-     * Registers all mod recipes. Called during preInit.
-     */
-    @Mod.EventBusSubscriber(modid = Toolbelt.MODID)
-    public static class RegistryHandler {
-        @SubscribeEvent
-        public static void registerRecipes(RegistryEvent.Register<IRecipe> evt) {
-            IForgeRegistry<IRecipe> r = evt.getRegistry();
-
-            // Register shaped recipe: leather in edge-only pattern, empty center
-            r.register(new RecipeToolbelt()
-                    .setRegistryName(Toolbelt.MODID, "toolbelt"));
-
-            Toolbelt.LOGGER.info("Registered crafting recipe: 8 leather → Toolbelt");
-        }
-    }
+    private static final Logger LOGGER = LogManager.getLogger("ToolbeltRecipes");
 
     /**
-     * Custom shaped recipe for the toolbelt.
+     * Logs that recipes have been loaded. Called during preInit for visibility
+     * in the log; actual recipe loading is handled by Forge's JSON loader.
      */
-    public static class RecipeToolbelt extends IForgeRegistryEntry.Impl<IRecipe> implements IRecipe {
-
-        @Override
-        public boolean matches(InventoryCrafting inv, World world) {
-            int leatherCount = 0;
-            for (int i = 0; i < inv.getSizeInventory(); i++) {
-                ItemStack stack = inv.getStackInSlot(i);
-                if (!stack.isEmpty()) {
-                    if (stack.getItem() == Items.LEATHER) {
-                        leatherCount++;
-                    } else {
-                        return false; // Only leather allowed
-                    }
-                }
-            }
-            // Exactly 8 leather items required
-            return leatherCount == 8;
-        }
-
-        @Override
-        public ItemStack getCraftingResult(InventoryCrafting inv) {
-            return new ItemStack(getToolbeltItem());
-        }
-
-        @Override
-        public boolean canFit(int width, int height) {
-            return width >= 3 && height >= 3; // Must fit in 3×3 grid
-        }
-
-        @Override
-        public ItemStack getRecipeOutput() {
-            return new ItemStack(getToolbeltItem());
-        }
-
-        @Override
-        public NonNullList<ItemStack> getRemainingItems(InventoryCrafting inv) {
-            NonNullList<ItemStack> remaining = NonNullList.withSize(inv.getSizeInventory(), ItemStack.EMPTY);
-            for (int i = 0; i < remaining.size(); i++) {
-                remaining.set(i, inv.getStackInSlot(i));
-            }
-            return remaining;
-        }
-
-        private static Item getToolbeltItem() {
-            return ToolbeltItem.INSTANCE;
-        }
+    public static void onPreInit() {
+        LOGGER.info("Crafting recipes loaded from assets/{}/recipes/", Toolbelt.MODID);
     }
 }

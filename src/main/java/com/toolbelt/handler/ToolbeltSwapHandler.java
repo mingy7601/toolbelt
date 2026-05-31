@@ -69,11 +69,10 @@ public class ToolbeltSwapHandler {
         // Don't swap while in a GUI
         boolean inGui = mc.currentScreen instanceof GuiContainer;
         if (!swapController.canSwap(inGui)) {
-            Toolbelt.LOGGER.info("[Toolbelt] canSwap returned false, inGui={}", inGui);
             return;
         }
 
-        // Send request to server — actual swap runs on server side
+        // Send request to server
         ToolbeltNetworkManager.sendSwapRequestToServer();
     }
 

@@ -19,17 +19,17 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * The Toolbelt bauble item. Extends Item and implements IBauble with BELT type.
  * Delegates NBT storage to {@link ToolbeltInventory}.
  */
+
 public class ToolbeltItem extends Item implements IBauble {
 
     private static final ToolbeltInventory INVENTORY = new ToolbeltInventory();
 
-    public static final ToolbeltItem INSTANCE = new ToolbeltItem();
+    public static ToolbeltItem INSTANCE;
 
-    private ToolbeltItem() {
+    public ToolbeltItem() {
         setTranslationKey("toolbelt");
         setRegistryName(new net.minecraft.util.ResourceLocation(Toolbelt.MODID, "toolbelt"));
-        setCreativeTab(CreativeTabs.TRANSPORTATION);
-        // No equipped-layer texture — invisible on character model
+        setCreativeTab(CreativeTabs.TOOLS);
         setMaxStackSize(1);
     }
 
@@ -67,24 +67,21 @@ public class ToolbeltItem extends Item implements IBauble {
      */
     public boolean isEmpty(ItemStack stack) {
         if (stack == null || !stack.hasTagCompound()) return true;
+        assert stack.getTagCompound() != null;
         return INVENTORY.isEmpty(stack.getTagCompound());
-    }
-
-    @Mod.EventBusSubscriber(modid = Toolbelt.MODID)
-    public static class RegistryHandler {
-        @SubscribeEvent
-        public static void registerItems(RegistryEvent.Register<Item> evt) {
-            evt.getRegistry().register(INSTANCE);
-        }
     }
 
     /**
      * Registers the model for this item (client-side only).
      */
-    @SideOnly(Side.CLIENT)
-    public static void registerModel() {
-        net.minecraftforge.client.model.ModelLoader.setCustomModelResourceLocation(
-                INSTANCE, 0, new ModelResourceLocation(INSTANCE.getRegistryName(), "inventory"));
+    @Mod.EventBusSubscriber(modid = Toolbelt.MODID, value = Side.CLIENT)
+    public static class ClientRegistryHandler {
+        @SubscribeEvent
+        public static void registerModels(net.minecraftforge.client.event.ModelRegistryEvent event) {
+            net.minecraftforge.client.model.ModelLoader.setCustomModelResourceLocation(
+                    ToolbeltItem.INSTANCE, 0,
+                    new ModelResourceLocation(ToolbeltItem.INSTANCE.getRegistryName(), "inventory"));
+        }
     }
 
     /**
@@ -96,16 +93,5 @@ public class ToolbeltItem extends Item implements IBauble {
             hotbar[i] = player.inventory.mainInventory.get(i);
         }
         return hotbar;
-    }
-
-    /**
-     * Sets the player's hotbar (slots 0-8) from an array.
-     */
-    private static void setHotbar(EntityPlayer player, ItemStack[] hotbar) {
-        for (int i = 0; i < 9 && i < hotbar.length; i++) {
-            if (hotbar[i] != null) {
-                player.inventory.mainInventory.set(i, hotbar[i]);
-            }
-        }
     }
 }

@@ -108,3 +108,13 @@ idea {
 tasks.processIdeaSettings.configure {
     dependsOn(tasks.injectTags)
 }
+
+tasks.jar.configure {
+    manifest {
+        attributes(
+            "FMLCorePlugin" to "",
+            "FMLCorePluginContainsFMLMod" to "true",
+            "ModSide" to "BOTH"
+        )
+    }
+}

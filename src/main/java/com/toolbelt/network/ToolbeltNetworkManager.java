@@ -1,7 +1,5 @@
 package com.toolbelt.network;
 
-import com.toolbelt.network.handler.SwapMessageHandler;
-import com.toolbelt.network.message.SwapMessage;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;

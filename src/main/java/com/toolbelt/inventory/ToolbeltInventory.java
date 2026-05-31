@@ -1,6 +1,5 @@
 package com.toolbelt.inventory;
 
-import com.toolbelt.Toolbelt;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -32,8 +31,6 @@ public class ToolbeltInventory {
         NBTTagCompound inventoryTag = new NBTTagCompound();
         inventoryTag.setTag(SLOTS_TAG, slots);
         nbt.setTag(TAG_KEY, inventoryTag);
-
-
     }
 
     /**
@@ -89,29 +86,6 @@ public class ToolbeltInventory {
     }
 
     /**
-     * Reads stored hotbar from an item stack's NBT. Returns the restored array.
-     */
-    public ItemStack[] readFromStack(ItemStack stack) {
-        if (stack == null || !stack.hasTagCompound()) {
-            return new ItemStack[SLOT_COUNT];
-        }
-        return restoreHotbar(stack.getTagCompound());
-    }
-
-    /**
-     * Writes the current hotbar into an item stack's NBT.
-     */
-    public void writeToStack(ItemStack stack, ItemStack[] hotbar) {
-        if (stack == null) {
-            return;
-        }
-        if (!stack.hasTagCompound()) {
-            stack.setTagCompound(new NBTTagCompound());
-        }
-        storeHotbar(hotbar, stack.getTagCompound());
-    }
-
-    /**
      * Reads stored hotbar from an item stack's NBT.
      */
     public ItemStack[] readFromStackSafe(ItemStack stack) {
@@ -119,6 +93,7 @@ public class ToolbeltInventory {
             return new ItemStack[SLOT_COUNT];
         }
         try {
+            assert stack.getTagCompound() != null;
             return restoreHotbar(stack.getTagCompound());
         } catch (Exception e) {
             // NBT corruption recovery — return empty array

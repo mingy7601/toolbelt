@@ -1,11 +1,10 @@
-package com.toolbelt.network.handler;
+package com.toolbelt.network;
 
+import baubles.api.BaublesApi;
 import com.toolbelt.Toolbelt;
-import com.toolbelt.handler.BaublesHelper;
 import com.toolbelt.handler.DefaultSwapController;
 import com.toolbelt.handler.SwapController;
 import com.toolbelt.item.ToolbeltItem;
-import com.toolbelt.network.message.SwapMessage;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -44,7 +43,7 @@ public class SwapMessageHandler implements IMessageHandler<SwapMessage, IMessage
         EntityPlayer player = ctx.getServerHandler().player;
         if (player == null) return null;
 
-        IItemHandler baubles = BaublesHelper.getBaublesHandler(player);
+        IItemHandler baubles = BaublesApi.getBaublesHandler(player);
         if (baubles == null) {
             Toolbelt.LOGGER.info("[Toolbelt] getBaublesHandler returned null");
             return null;
@@ -52,14 +51,12 @@ public class SwapMessageHandler implements IMessageHandler<SwapMessage, IMessage
 
         int slots = baubles.getSlots();
         ToolbeltItem foundItem = null;
-        ItemStack foundStack = null;
         int foundSlot = 0;
         for (int i = 0; i < slots; i++) {
             ItemStack stack = baubles.getStackInSlot(i);
             boolean empty = stack.isEmpty();
             if (!empty && stack.getItem() instanceof ToolbeltItem) {
                 foundItem = (ToolbeltItem) stack.getItem();
-                foundStack = stack;
                 foundSlot = i;
                 break;
             }
@@ -69,20 +66,18 @@ public class SwapMessageHandler implements IMessageHandler<SwapMessage, IMessage
             return null;
         }
 
-        performSwap(foundItem, foundStack, player, baubles, foundSlot);
+        performSwap(foundItem, player, baubles, foundSlot);
         return null;
     }
 
     /**
      * Performs the actual hotbar swap on the server side.
      */
-    private void performSwap(ToolbeltItem toolbeltItem, ItemStack toolbeltStack,
+    private void performSwap(ToolbeltItem toolbeltItem,
                              EntityPlayer player, IItemHandler baubles, int baublesSlot) {
 
         // Get the live stack reference once — used for both read and write
-        ItemStack liveStack = ((net.minecraftforge.items.IItemHandlerModifiable) baubles).getStackInSlot(baublesSlot);
-        Toolbelt.LOGGER.info("[Toolbelt] liveStack stack identity: {}", System.identityHashCode(liveStack));
-        Toolbelt.LOGGER.info("[Toolbelt] liveStack NBT before write: {}", liveStack.getTagCompound());
+        ItemStack liveStack = baubles.getStackInSlot(baublesSlot);
         // Step 1: Deep copy the current hotbar
         ItemStack[] currentHotbar = new ItemStack[9];
         for (int i = 0; i < 9; i++) {
@@ -92,15 +87,12 @@ public class SwapMessageHandler implements IMessageHandler<SwapMessage, IMessage
 
         // Step 2: Read stored items from the live stack's NBT
         ItemStack[] storedHotbar = toolbeltItem.restoreHotbar(liveStack);
-        Toolbelt.LOGGER.info("[Toolbelt] storedHotbar read from NBT: slot0={}, slot1={}",
-                storedHotbar[0], storedHotbar[1]);
 
         // Step 3: Swap arrays in memory
         swapController.performSwap(currentHotbar, storedHotbar);
 
         // Step 4: Write back to the same live stack reference
         toolbeltItem.storeHotbar(liveStack, storedHotbar);
-        Toolbelt.LOGGER.info("[Toolbelt] NBT written to live stack: {}", liveStack.getTagCompound());
 
         // Step 5: Write the previously-stored items into the player's hotbar
         for (int i = 0; i < currentHotbar.length; i++) {
