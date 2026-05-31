@@ -39,6 +39,14 @@ public class ToolbeltItem extends Item implements IBauble {
     }
 
     /**
+     * Stores the given hotbar array into this item stack's NBT.
+     */
+    public void storeHotbar(ItemStack stack, ItemStack[] hotbar) {
+        if (stack == null || hotbar == null) return;
+        INVENTORY.writeToStackSafe(stack, hotbar);
+    }
+
+    /**
      * Stores the player's current hotbar into this item stack's NBT.
      */
     public void storeHotbar(ItemStack stack, EntityPlayer player) {
@@ -95,7 +103,9 @@ public class ToolbeltItem extends Item implements IBauble {
      */
     private static void setHotbar(EntityPlayer player, ItemStack[] hotbar) {
         for (int i = 0; i < 9 && i < hotbar.length; i++) {
-            player.inventory.mainInventory.set(i, hotbar[i]);
+            if (hotbar[i] != null) {
+                player.inventory.mainInventory.set(i, hotbar[i]);
+            }
         }
     }
 }

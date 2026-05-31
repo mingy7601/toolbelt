@@ -7,13 +7,16 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
- * Forge @Config annotations for scalar values (cooldown duration).
+ * Forge @Config annotations for scalar values.
  * Config file location: config/toolbelt.cfg
  */
 @Config(modid = "toolbelt", name = "toolbelt", type = Config.Type.INSTANCE)
 public class ToolbeltConfig {
 
-    public static int cooldown = 1; // seconds (default: 1 second)
+    /** Minimum time between swaps in seconds. Default: 0.5 */
+    @Config.Comment("Minimum time between swaps in seconds")
+    @Config.Name("Swap Cooldown Seconds")
+    public static double swapCooldownSeconds = 0.5;
 
     /**
      * Loads the config from disk. Should be called during preInit.
@@ -38,7 +41,7 @@ public class ToolbeltConfig {
     /**
      * Returns the current cooldown value in seconds.
      */
-    public static int getCooldown() {
-        return cooldown;
+    public static double getCooldown() {
+        return swapCooldownSeconds;
     }
 }

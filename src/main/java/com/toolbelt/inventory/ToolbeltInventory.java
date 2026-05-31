@@ -1,5 +1,6 @@
 package com.toolbelt.inventory;
 
+import com.toolbelt.Toolbelt;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -20,15 +21,19 @@ public class ToolbeltInventory {
     public void storeHotbar(ItemStack[] hotbar, NBTTagCompound nbt) {
         NBTTagList slots = new NBTTagList();
         for (int i = 0; i < SLOT_COUNT && i < hotbar.length; i++) {
-            if (hotbar[i] != null) {
+            if (hotbar[i] != null && !hotbar[i].isEmpty()) {
                 NBTTagCompound slotTag = new NBTTagCompound();
                 slotTag.setInteger("Slot", i);
                 hotbar[i].writeToNBT(slotTag);
                 slots.appendTag(slotTag);
             }
         }
-        nbt.setTag(TAG_KEY, new NBTTagCompound());
-        nbt.getCompoundTag(TAG_KEY).setTag(SLOTS_TAG, slots);
+
+        NBTTagCompound inventoryTag = new NBTTagCompound();
+        inventoryTag.setTag(SLOTS_TAG, slots);
+        nbt.setTag(TAG_KEY, inventoryTag);
+
+
     }
 
     /**
@@ -39,15 +44,15 @@ public class ToolbeltInventory {
         ItemStack[] result = new ItemStack[SLOT_COUNT];
 
         if (!nbt.hasKey(TAG_KEY)) {
-            return result; // No stored data — all null
+            return result;
         }
 
         NBTTagCompound inventoryTag = nbt.getCompoundTag(TAG_KEY);
         if (!inventoryTag.hasKey(SLOTS_TAG)) {
-            return result; // Tag exists but no slots key
+            return result;
         }
 
-        NBTTagList slots = inventoryTag.getTagList(SLOTS_TAG, 6); // TAG_COMPOUND = 6
+        NBTTagList slots = inventoryTag.getTagList(SLOTS_TAG, 10); // TAG_COMPOUND = 6
         for (int i = 0; i < slots.tagCount(); i++) {
             NBTTagCompound slotTag = slots.getCompoundTagAt(i);
             int slotIndex = slotTag.getInteger("Slot");
@@ -69,12 +74,11 @@ public class ToolbeltInventory {
         if (!inventoryTag.hasKey(SLOTS_TAG)) {
             return true;
         }
-        NBTTagList slots = inventoryTag.getTagList(SLOTS_TAG, 6); // TAG_COMPOUND = 6
+        NBTTagList slots = inventoryTag.getTagList(SLOTS_TAG, 10);
         for (int i = 0; i < slots.tagCount(); i++) {
             NBTTagCompound slotTag = slots.getCompoundTagAt(i);
             int slotIndex = slotTag.getInteger("Slot");
             if (slotIndex >= 0 && slotIndex < SLOT_COUNT) {
-                // Check if the item stack actually exists and is non-null
                 ItemStack stack = new ItemStack(slotTag);
                 if (!stack.isEmpty()) {
                     return false;

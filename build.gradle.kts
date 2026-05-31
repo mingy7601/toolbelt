@@ -61,9 +61,13 @@ repositories {
     }
 }
 
+
+
 dependencies {
     // Baubles - required dependency (deobfuscated from CurseForge via rfg.deobf)
     implementation(rfg.deobf("curse.maven:baubles-227083:2518667"))
+
+    testImplementation("junit:junit:4.13.2")
 }
 
 tasks.withType<JavaCompile> {

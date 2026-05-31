@@ -3,6 +3,7 @@ package com.toolbelt;
 import com.toolbelt.config.ToolbeltConfig;
 import com.toolbelt.handler.ToolbeltSwapHandler;
 import com.toolbelt.item.ToolbeltItem;
+import com.toolbelt.network.ToolbeltNetworkManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -46,6 +47,9 @@ public class Toolbelt {
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         LOGGER.info("Toolbelt mod initialized.");
+
+        // Register network channel (works on both client and server)
+        ToolbeltNetworkManager.registerMessages();
 
         // Register the swap handler for key input events (client-side only)
         if (event.getSide() == Side.CLIENT) {
